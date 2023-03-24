@@ -1,0 +1,21 @@
+trajectory_execution:
+  allowed_execution_duration_scaling: 1.2
+  allowed_goal_duration_margin: 0.5
+  allowed_start_tolerance: 0.01
+
+moveit_controller_manager: moveit_simple_controller_manager/MoveItSimpleControllerManager
+
+controller_names:
+  - elfin_arm_controller
+
+elfin_arm_controller:
+  action_ns: follow_joint_trajectory
+  type: FollowJointTrajectory
+  default: true
+  joints:
+    - elfin_joint1
+    - elfin_joint2
+    - elfin_joint3
+    - elfin_joint4
+    - elfin_joint5
+    - elfin_joint6

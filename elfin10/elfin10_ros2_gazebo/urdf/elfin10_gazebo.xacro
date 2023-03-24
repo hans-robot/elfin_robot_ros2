@@ -1,0 +1,134 @@
+<?xml version="1.0"?>
+
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <xacro:macro name="elfin10_gazebo" 
+    params="use_fake_hardware:=false 
+    use_real_hardware:=true">
+
+    <gazebo>
+      <plugin filename="libgazebo_ros2_control.so" name="gazebo_ros2_control">
+        <robot_sim_type>gazebo_ros2_control/GazeboSystem</robot_sim_type>
+        <parameters>$(find elfin10_ros2_gazebo)/config/elfin_arm_controller.yaml</parameters>
+      </plugin>
+    </gazebo>
+    
+    <ros2_control name="GazeboSystem" type="system">
+
+      <hardware>
+        <xacro:if value="${use_real_hardware}">
+          <plugin>elfin_hardware_interface/ElfinHWInterface</plugin>
+        </xacro:if>
+
+        <xacro:unless value="${use_real_hardware}">
+          <xacro:if value="${use_fake_hardware}">
+              <plugin>fake_components/GenericSystem</plugin>
+          </xacro:if>
+
+          <xacro:unless value="${use_fake_hardware}">
+            <plugin>gazebo_ros2_control/GazeboSystem</plugin>
+          </xacro:unless>
+        </xacro:unless>
+      </hardware>
+      
+
+      <joint name="elfin_joint1">
+        <command_interface name="position">
+          <param name="min">-3.14</param>
+          <param name="max">3.14</param>
+        </command_interface>
+        <command_interface name="velocity">
+          <param name="min">-1.57</param>
+          <param name="max">1.57</param>
+        </command_interface>
+        <state_interface name="position"/>
+        <state_interface name="velocity"/>
+      </joint>
+      <joint name="elfin_joint2">
+        <command_interface name="position">
+          <param name="min">-2.35</param>
+          <param name="max">2.35</param>
+        </command_interface>
+        <command_interface name="velocity">
+          <param name="min">-1.57</param>
+          <param name="max">1.57</param>
+        </command_interface>
+        <state_interface name="position"/>
+        <state_interface name="velocity"/>
+      </joint>
+      <joint name="elfin_joint3">
+        <command_interface name="position">
+          <param name="min">-2.61</param>
+          <param name="max">2.61</param>
+        </command_interface>
+        <command_interface name="velocity">
+          <param name="min">-1.57</param>
+          <param name="max">1.57</param>
+        </command_interface>
+        <state_interface name="position"/>
+        <state_interface name="velocity"/>
+      </joint>
+      <joint name="elfin_joint4">
+        <command_interface name="position">
+          <param name="min">-3.14</param>
+          <param name="max">3.14</param>
+        </command_interface>
+        <command_interface name="velocity">
+          <param name="min">-1.57</param>
+          <param name="max">1.57</param>
+        </command_interface>
+        <state_interface name="position"/>
+        <state_interface name="velocity"/>
+      </joint>
+      <joint name="elfin_joint5">
+        <command_interface name="position">
+          <param name="min">-2.56</param>
+          <param name="max">2.56</param>
+        </command_interface>
+        <command_interface name="velocity">
+          <param name="min">-1.57</param>
+          <param name="max">1.57</param>
+        </command_interface>
+        <state_interface name="position"/>
+        <state_interface name="velocity"/>
+      </joint>
+      <joint name="elfin_joint6">
+        <command_interface name="position">
+          <param name="min">-3.14</param>
+          <param name="max">3.14</param>
+        </command_interface>
+        <command_interface name="velocity">
+          <param name="min">-1.57</param>
+          <param name="max">1.57</param>
+        </command_interface>
+        <state_interface name="position"/>
+        <state_interface name="velocity"/>
+      </joint>
+
+    </ros2_control>
+
+ <gazebo reference="elfin_link2">
+    <visual name='visual'>
+     <material>
+       <script>
+         <uri>file://media/materials/scripts/gazebo.material</uri>
+         <name>Gazebo/Grey</name>
+       </script>
+     </material>
+    </visual>
+  </gazebo>
+
+  <gazebo reference="elfin_link4">
+    <visual name='visual'>
+     <material>
+       <script>
+         <uri>file://media/materials/scripts/gazebo.material</uri>
+         <name>Gazebo/Grey</name>
+       </script>
+     </material>
+    </visual>
+  </gazebo>
+
+  </xacro:macro>
+
+</robot>

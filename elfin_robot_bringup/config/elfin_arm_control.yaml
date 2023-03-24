@@ -1,0 +1,60 @@
+/**:
+    ros__parameters:
+        elfin_ethernet_name: enp2s0
+        slave_no: [1, 2, 3]
+        joint_names: [elfin_joint2, elfin_joint1, elfin_joint3, elfin_joint4, elfin_joint5, elfin_joint6]
+        reduction_ratios: [101.0, 101.0, 101.0, 101.0, 101.0, 101.0]
+        count_zeros: [5156486, 6709009, 32433056, 32050648, 4834701, 9374870]
+        axis_position_factors: [131072.0, 131072.0, 131072.0, 131072.0, 131072.0, 131072.0]
+        axis_torque_factors: [5251.283, 5251.283, 8533.125, 8533.125, 15975.05, 15975.05]
+
+controller_manager:
+  ros__parameters:
+    update_rate: 50
+
+    elfin_arm_controller:
+      type: joint_trajectory_controller/JointTrajectoryController
+      joints:
+        - elfin_joint1
+        - elfin_joint2
+        - elfin_joint3
+        - elfin_joint4
+        - elfin_joint5
+        - elfin_joint6
+      publish_rate: 50
+      write_op_modes:
+        - elfin_joint1
+        - elfin_joint2
+        - elfin_joint3
+        - elfin_joint4
+        - elfin_joint5
+        - elfin_joint6
+
+    joint_state_controller:
+      type: joint_state_controller/JointStateController
+
+elfin_arm_controller:
+  ros__parameters:
+    joints:
+     - elfin_joint1
+     - elfin_joint2
+     - elfin_joint3
+     - elfin_joint4
+     - elfin_joint5
+     - elfin_joint6
+    command_interfaces:
+      - position
+    state_interfaces:
+      - position
+    state_publish_rate: 50.0
+    action_monitor_rate: 50.0
+    allow_partial_joints_goal: false
+    constraints:
+      stopped_velocity_tolerance: 0.2
+      goal_time: 0.6
+      elfin_joint1: { trajectory: 0.2, goal: 0.1 }
+      elfin_joint2: { trajectory: 0.2, goal: 0.1 }
+      elfin_joint3: { trajectory: 0.2, goal: 0.1 }
+      elfin_joint4: { trajectory: 0.2, goal: 0.1 }
+      elfin_joint5: { trajectory: 0.2, goal: 0.1 }
+      elfin_joint6: { trajectory: 0.2, goal: 0.1 }

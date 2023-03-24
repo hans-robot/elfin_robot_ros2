@@ -1,0 +1,19 @@
+<library path="elfin_hardware_interface">
+    <class name="elfin_hardware_interface/ElfinHWInterface"
+           type="elfin_hardware_interface::ElfinHWInterface"
+           base_class_type="hardware_interface::SystemInterface">
+
+        <description>
+            Hardware interface for Elfin robots
+        </description>
+    </class>
+    
+    <class name="elfin_hardware_interface/ElfinHWInterface_PositoinOnly"
+         type="elfin_hardware_interface::ElfinHWInterface_PositoinOnly"
+         base_class_type="hardware_interface::SystemInterface">
+        <description>
+            Hardware interface only position for Elfin robots
+        </description>
+    </class>
+    
+</library>
