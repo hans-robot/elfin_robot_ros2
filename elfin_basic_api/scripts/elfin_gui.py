@@ -349,6 +349,8 @@ class MyFrame(wx.Frame,Node):
         self.action_goal=FollowJointTrajectory_Goal()
         self.action_goal.trajectory.joint_names=self.joint_names
         
+        self.any_button_press = False
+
         self.SetMinSize(the_size)
         self.SetMaxSize(the_size)
     
@@ -505,6 +507,7 @@ class MyFrame(wx.Frame,Node):
     
     def teleop_joints(self,event,mark):
         try:
+            self.any_button_press = True
             self.node_lock.acquire()
             self.call_teleop_joint_req.data=mark
             resp=self.call_teleop_joint.call_async(self.call_teleop_joint_req)
@@ -517,6 +520,7 @@ class MyFrame(wx.Frame,Node):
         
     def teleop_pcs(self,event,mark):
         try: 
+            self.any_button_press = True
             self.node_lock.acquire()
             self.call_teleop_cart_req.data=mark            
             resp=self.call_teleop_cart.call_async(self.call_teleop_cart_req)
@@ -535,11 +539,12 @@ class MyFrame(wx.Frame,Node):
         wx.CallAfter(self.update_reply_show, resp.result())
         event.Skip()
         self.node_lock.release()
+        self.any_button_press = False
     
     def call_set_bool_common(self, event, client, request):
         btn=event.GetEventObject()
         check_list=['Servo On', 'Servo Off', 'Clear Fault']
-        
+        self.any_button_press = True
         # Check servo state
         if btn.GetName()=='Servo On':
             servo_enabled=bool()
@@ -571,6 +576,7 @@ class MyFrame(wx.Frame,Node):
         # Check if the button is in check list
         if btn.GetName() in check_list:
             self.show_message_dialog(btn.GetName(), client, request)
+            self.any_button_press = False
         else:
             try:
                 self.node_lock.acquire()
@@ -618,7 +624,7 @@ class MyFrame(wx.Frame,Node):
         try:
             client = self.call_read_do
             val = client.call_async(self.call_read_do_req)
-            rclpy.spin_until_future_complete(self.node, val,  executor=None, timeout_sec=0.05)
+            rclpy.spin_until_future_complete(self.node, val)
             if val.done():
                 self.process_DO_btn(val.result().digital_input)
         except Exception as e:
@@ -630,7 +636,7 @@ class MyFrame(wx.Frame,Node):
         if self.DI_show_lock.acquire():
             if value > 0:
                 for i in range(0,8):
-                    tmp = (value >> (i)) & 0x01
+                    tmp = (value >> (16 + i)) & 0x01
                     self.DI_show[i]=tmp
             else:
                 self.DI_show = [0,0,0,0,0,0,0,0]
@@ -641,7 +647,7 @@ class MyFrame(wx.Frame,Node):
         try:
             client = self.call_read_di
             val = client.call_async(self.call_read_di_req)
-            rclpy.spin_until_future_complete(self.node, val,  executor=None, timeout_sec=0.05)
+            rclpy.spin_until_future_complete(self.node, val)
             if val.done():
                 self.process_DI_btn(val.result().digital_input)
         except Exception as e:
@@ -650,13 +656,15 @@ class MyFrame(wx.Frame,Node):
 
     # 20201202: add function to read DO and DI.
     def monitor_DO_DI(self):
-        self.node_lock.acquire()
-        self.call_read_DI_command()
-        self.call_read_DO_command()
-        self.node_lock.release()
+        if not self.any_button_press:
+            self.node_lock.acquire()
+            self.call_read_DI_command()
+            self.call_read_DO_command()
+            self.node_lock.release()
 
     # 20201126: add function to write DO.
     def call_write_DO_command(self, event, marker, client):
+        self.any_button_press = True
         self.justification_DO_btn(marker)
         write_request = ElfinIODWrite_Request()
         request = 0
@@ -667,6 +675,7 @@ class MyFrame(wx.Frame,Node):
             write_request.digital_output = request <<12
             resp=client.call_async(write_request)
             self.DO_btn_lock.release()
+            self.any_button_press = False
         except Exception as e:
             self.DO_btn_lock.release()
             resp=ElfinIODWrite_Response()
@@ -917,10 +926,6 @@ class MyFrame(wx.Frame,Node):
 
         self.gui_node.create_timer(0.2, self.monitor_status)
         self.gui_node.create_timer(0.2, self.set_color)
-        if not self.use_fake_robot:
-            self.gui_node.create_timer(0.2, self.monitor_DO_DI)
-        else:
-            pass
        
         self.elfin_gui_executor = MultiThreadedExecutor()
         self.elfin_gui_executor.add_node(self.gui_node)
