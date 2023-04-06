@@ -82,6 +82,7 @@ public:
 
     static int32_t getIntFromStr(std::string str);
     void error_log(int line, std::string log, std::string log_param);
+    std::vector<ElfinEtherCATIOClient*> ethercat_io_clients_;
 
 private:
         std::vector<ElfinEtherCATClient*> ethercat_clients_;
@@ -92,7 +93,6 @@ private:
         std::vector<double> axis_torque_factors_;
         std::vector<int64_t> count_zeros_;
 
-        std::vector<ElfinEtherCATIOClient*> ethercat_io_clients_;
         std::vector<int64_t> io_slave_no_;
 
         std::string driver_name_;

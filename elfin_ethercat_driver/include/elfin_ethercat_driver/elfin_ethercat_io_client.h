@@ -46,6 +46,7 @@ Created on Tus Nov 17 15:36 2020
 #include "elfin_robot_msgs/srv/elfin_iod_read.hpp"
 #include "elfin_robot_msgs/srv/elfin_iod_write.hpp"
 #include <std_srvs/srv/set_bool.hpp>
+#include <std_msgs/msg/int64_multi_array.hpp>
 
 #include <pthread.h>
 #include <time.h>
@@ -86,6 +87,7 @@ private:
     rclcpp::Service<elfin_robot_msgs::srv::ElfinIODWrite>::SharedPtr write_sdo_;
     rclcpp::Service<std_srvs::srv::SetBool>::SharedPtr get_txsdo_server_;
     rclcpp::Service<std_srvs::srv::SetBool>::SharedPtr get_rxsdo_server_;
+    rclcpp::Publisher<std_msgs::msg::Int64MultiArray>::SharedPtr end_io_state;
 
 
 public:
@@ -107,6 +109,9 @@ public:
     bool writeSDO_cb(const std::shared_ptr<elfin_robot_msgs::srv::ElfinIODWrite::Request> req, const std::shared_ptr<elfin_robot_msgs::srv::ElfinIODWrite::Response> resp); // 20201117
     bool getRxSDO_cb(const std::shared_ptr<std_srvs::srv::SetBool::Request> req, const std::shared_ptr<std_srvs::srv::SetBool::Response> resp);
     bool getTxSDO_cb(const std::shared_ptr<std_srvs::srv::SetBool::Request> req, const std::shared_ptr<std_srvs::srv::SetBool::Response> resp);
+
+    std_msgs::msg::Int64MultiArray end_io;
+    void pub_io_state();
 };
 
 }

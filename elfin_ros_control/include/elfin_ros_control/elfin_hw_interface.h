@@ -121,6 +121,9 @@ private:
   bool pos_interface_running = false;
   bool first_pass_ = true;
   bool initialized_ = false;
+
+  std::vector<double> new_commands_;
+  std::vector<double> old_commands_;
 };
 } 
 

@@ -57,7 +57,7 @@ import os # 20201209: add os path
 import tf2_ros
 from tf2_ros import LookupException, ConnectivityException, ExtrapolationException
 
-from std_msgs.msg import Bool, String,Float32
+from std_msgs.msg import Bool, String,Float32, Int64MultiArray
 from  std_srvs.srv._set_bool import SetBool,SetBool_Request, SetBool_Response
 from elfin_robot_msgs.srv._elfin_iod_read import ElfinIODRead_Request, ElfinIODRead_Response,ElfinIODRead
 from elfin_robot_msgs.srv._elfin_iod_write import ElfinIODWrite_Request, ElfinIODWrite_Response,ElfinIODWrite
@@ -916,6 +916,11 @@ class MyFrame(wx.Frame,Node):
         if self.end_link_lock.acquire():
             self.end_link_name=data.data
             self.end_link_lock.release()
+
+    def end_io_cb(self, data):
+        end_io_state = data.data
+        self.process_DI_btn(end_io_state[0])
+        self.process_DO_btn(end_io_state[1])
         
     def listen(self):
         self.gui_node.create_subscription(Bool, '/enable_state', self.servo_state_cb, 10)
@@ -926,6 +931,10 @@ class MyFrame(wx.Frame,Node):
 
         self.gui_node.create_timer(0.2, self.monitor_status)
         self.gui_node.create_timer(0.2, self.set_color)
+        if not self.use_fake_robot:
+            self.gui_node.create_subscription(Int64MultiArray, '/end_io_data', self.end_io_cb, 10)
+        else:
+            pass
        
         self.elfin_gui_executor = MultiThreadedExecutor()
         self.elfin_gui_executor.add_node(self.gui_node)

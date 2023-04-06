@@ -74,6 +74,7 @@ ElfinEtherCATIOClient::ElfinEtherCATIOClient(EtherCatManager *manager, int slave
     write_sdo_=io_nh_->create_service<elfin_robot_msgs::srv::ElfinIODWrite>("write_do", std::bind(&ElfinEtherCATIOClient::writeSDO_cb, this,std::placeholders::_1,std::placeholders::_2));
     get_txsdo_server_=io_nh_->create_service<std_srvs::srv::SetBool>("get_io_txpdo", std::bind(&ElfinEtherCATIOClient::getTxSDO_cb, this,std::placeholders::_1,std::placeholders::_2));
     get_rxsdo_server_=io_nh_->create_service<std_srvs::srv::SetBool>("get_io_rxpdo", std::bind(&ElfinEtherCATIOClient::getRxSDO_cb, this,std::placeholders::_1,std::placeholders::_2));
+    end_io_state =  io_nh_->create_publisher<std_msgs::msg::Int64MultiArray>("end_io_data",1);
 
 }
 
@@ -111,16 +112,16 @@ int32_t ElfinEtherCATIOClient::readSDO_unit(int n)
         return 0x0000;
     // 20201116: build the connection.
     manager_->writeSDO<int>(3,0x3100,0x0,1); // Modbus DO command
-    usleep(50000);
+    //usleep(50000);
     manager_->writeSDO<int32_t>(3,0x3101,0x0,0x010040); // 64 connect to Modbus
-    usleep(50000);
+    //usleep(50000);
     manager_->writeSDO<int32_t>(3,0x3102,0x0,0x010001); // Modbus Addr & count
-    usleep(50000);
+    //usleep(50000);
     // 0x2126, L_4 is end DI, H_4 is button DI.
     int32_t map;
     map = (manager_->readSDO<int32_t>(3, 0x2126, 0x0)) << 16; // read the end DI
     manager_->writeSDO<int>(3,0x3100,0x0,0); // Modbus DO command 0
-    usleep(50000);
+    //usleep(50000);
     return map;
 }
 
@@ -131,16 +132,16 @@ int32_t ElfinEtherCATIOClient::readDO_unit(int n)
         return 0x0000;
     // 20201130: build the connection.
     manager_->writeSDO<int>(3,0x3100,0x0,1); // Modbus DO command
-    usleep(50000);
+    //usleep(50000);
     manager_->writeSDO<int32_t>(3,0x3101,0x0,0x010040); // 64 connect to Modbus
-    usleep(50000);
+    //usleep(50000);
     manager_->writeSDO<int32_t>(3,0x3102,0x0,0x010001); // Modbus Addr & count
-    usleep(50000);
+    //usleep(50000);
     // 0x310C, DO.
     int32_t map;
-    map = (manager_->readSDO<int32_t>(4, 0x7001, 0x0)) << 12; // read the end DO
+    map = (manager_->readSDO<int32_t>(3, 0x310C, 0x0)) << 12; // read the end DO
     manager_->writeSDO<int>(3,0x3100,0x0,0); // Modbus DO command 0
-    usleep(50000);
+    //usleep(50000);
     return map;
 }
 
@@ -205,21 +206,21 @@ std::string ElfinEtherCATIOClient::getRxSDO()
 // 20201116: read the end SDO
 bool ElfinEtherCATIOClient::readSDO_cb(const std::shared_ptr<elfin_robot_msgs::srv::ElfinIODRead::Request> req, const std::shared_ptr<elfin_robot_msgs::srv::ElfinIODRead::Response> resp)
 {
-    resp->digital_input=readInput_unit(elfin_io_txpdo::DIGITAL_INPUT);
+    resp->digital_input=readSDO_unit(elfin_io_txpdo::DIGITAL_INPUT);
     return true;
 }
 
 // 20201130: read the end DO
 bool ElfinEtherCATIOClient::readDO_cb(const std::shared_ptr<elfin_robot_msgs::srv::ElfinIODRead::Request> req, const std::shared_ptr<elfin_robot_msgs::srv::ElfinIODRead::Response> resp)
 {
-    resp->digital_input=readOutput_unit(elfin_io_txpdo::DIGITAL_INPUT); // 20201130: digital_input for convenience
+    resp->digital_input=readDO_unit(elfin_io_txpdo::DIGITAL_INPUT); // 20201130: digital_input for convenience
     return true;
 }
 
 // 20201117: write the end SDO
 bool ElfinEtherCATIOClient::writeSDO_cb(const std::shared_ptr<elfin_robot_msgs::srv::ElfinIODWrite::Request> req, const std::shared_ptr<elfin_robot_msgs::srv::ElfinIODWrite::Response> resp)
 {
-    writeOutput_unit(elfin_io_rxpdo::DIGITAL_OUTPUT,req->digital_output);
+    writeSDO_unit(req->digital_output);
     resp->success=true;
     return true;
 }
@@ -251,6 +252,15 @@ bool ElfinEtherCATIOClient::getTxSDO_cb(const std::shared_ptr<std_srvs::srv::Set
     resp->success=true;
     resp->message=getTxSDO();
     return true;
+}
+
+void ElfinEtherCATIOClient::pub_io_state()
+{
+    int32_t di_data = readSDO_unit(elfin_io_txpdo::DIGITAL_INPUT);
+    int32_t do_data = readDO_unit(elfin_io_txpdo::DIGITAL_INPUT);
+
+    end_io.data = {di_data,do_data};
+    end_io_state->publish(end_io);
 }
 
 }

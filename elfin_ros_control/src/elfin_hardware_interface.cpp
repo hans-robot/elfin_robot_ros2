@@ -90,6 +90,9 @@ namespace elfin_hardware_interface{
     ethercat_drivers_.clear();
     ethercat_drivers_.resize(elfin_driver_names_.size());
 
+    new_commands_ = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
+    old_commands_ = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
+
     em = new elfin_ethercat_driver::EtherCatManager(ethernet_name);
     for(unsigned int i=0;i<ethercat_drivers_.size();i++)
     {
@@ -300,26 +303,28 @@ namespace elfin_hardware_interface{
       module_infos_[i].axis2.position = position_tmp2;
       module_infos_[i].axis2.velocity = -1*vel_count2/module_infos_[i].axis2.count_rad_per_s_factor;
       module_infos_[i].axis2.effort = -1*trq_count2/module_infos_[i].axis2.count_Nm_factor;
-    }
-    
-    if (first_pass_ && !initialized_) {
-      // initialize commands
-      for(size_t i=0;i<module_infos_.size();i++)
-      {
+
+      if (first_pass_ && !initialized_) {
         module_infos_[i].axis1.position_cmd = module_infos_[i].axis1.position;
         module_infos_[i].axis2.position_cmd = module_infos_[i].axis2.position;
+
+        new_commands_[2*i] = pos_count1;
+        new_commands_[2*i+1] = pos_count2;
+
+        old_commands_[2*i] = pos_count1;
+        old_commands_[2*i+1] = pos_count2;
       }
-      initialized_ = true;
     }
+    initialized_ = true;
     
     return return_type::OK;
   }
 
   return_type ElfinHWInterface::write()
   {
+    bool robot_move = false;
     for(size_t i =0;i<module_infos_.size();i++)
     {
-
       if(!module_infos_[i].client_ptr->inPosBasedMode())
       {
         module_infos_[i].axis1.position_cmd = module_infos_[i].axis1.position;
@@ -328,8 +333,22 @@ namespace elfin_hardware_interface{
       double position_cmd_count1 = -1*module_infos_[i].axis1.position_cmd * module_infos_[i].axis1.count_rad_factor + module_infos_[i].axis1.count_zero;
       double position_cmd_count2 = -1*module_infos_[i].axis2.position_cmd * module_infos_[i].axis2.count_rad_factor + module_infos_[i].axis2.count_zero;
 
-      module_infos_[i].client_ptr->setAxis1PosCnt(int32_t(position_cmd_count1));
-      module_infos_[i].client_ptr->setAxis2PosCnt(int32_t(position_cmd_count2));
+      new_commands_[2*i] = position_cmd_count1;
+      new_commands_[2*i+1] = position_cmd_count2;
+
+      if(fabs((new_commands_[2*i]- module_infos_[i].axis1.count_zero) - (old_commands_[2*i]- module_infos_[i].axis1.count_zero))/module_infos_[i].axis1.count_rad_factor>motion_threshold_)
+      {  
+        module_infos_[i].client_ptr->setAxis1PosCnt(int32_t(position_cmd_count1));
+        robot_move = true;
+        old_commands_[2*i] = new_commands_[2*i];
+      }
+      
+      if(fabs((new_commands_[2*i+1]- module_infos_[i].axis2.count_zero) - (old_commands_[2*i+1]- module_infos_[i].axis2.count_zero))/module_infos_[i].axis2.count_rad_factor>motion_threshold_)
+      {
+         module_infos_[i].client_ptr->setAxis2PosCnt(int32_t(position_cmd_count2));
+         robot_move = true;
+         old_commands_[2*i+1] = new_commands_[2*i+1];
+      }
   
       bool is_preparing_switch;
       boost::mutex::scoped_lock pre_switch_flags_lock(*pre_switch_mutex_ptrs_[i]);
@@ -350,6 +369,9 @@ namespace elfin_hardware_interface{
         //module_infos_[i].client_ptr->setAxis1TrqCnt(int16_t(torque_cmd_count1));
         //module_infos_[i].client_ptr->setAxis2TrqCnt(int16_t(torque_cmd_count2));
       }
+    }
+    if(!robot_move){
+      ethercat_drivers_[0]->ethercat_io_clients_[0]->pub_io_state();
     }
     return return_type::OK;
   }
