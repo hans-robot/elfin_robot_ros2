@@ -370,8 +370,13 @@ namespace elfin_hardware_interface{
         //module_infos_[i].client_ptr->setAxis2TrqCnt(int16_t(torque_cmd_count2));
       }
     }
-    if(!robot_move){
-      ethercat_drivers_[0]->ethercat_io_clients_[0]->pub_io_state();
+    if(!robot_move ){
+      command_count += 1;
+      if(command_count > 5){
+        ethercat_drivers_[0]->ethercat_io_clients_[0]->pub_io_state();
+      }
+    }else{
+      command_count = 0;
     }
     return return_type::OK;
   }
