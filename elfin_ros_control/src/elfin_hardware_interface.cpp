@@ -171,10 +171,7 @@ namespace elfin_hardware_interface{
     {
       pre_switch_mutex_ptrs_[i] = boost::shared_ptr<boost::mutex>(new boost::mutex);
     }
-    // for(unsigned int i=0;i<ethercat_drivers_.size();i++)
-    // {
-    //   ethercat_drivers_[i]->enableRobot_test();
-    // }
+    ethercat_drivers_[0]->ethercat_io_clients_[0]->start_thread();
     return return_type::OK;
   }
 
@@ -281,6 +278,7 @@ namespace elfin_hardware_interface{
   return_type ElfinHWInterface::read()
   {
     rclcpp::spin_some(n_);
+    
     for(size_t i=0;i<module_infos_.size();i++)
     {
       int32_t pos_count1 = module_infos_[i].client_ptr->getAxis1PosCnt();
@@ -322,7 +320,6 @@ namespace elfin_hardware_interface{
 
   return_type ElfinHWInterface::write()
   {
-    bool robot_move = false;
     for(size_t i =0;i<module_infos_.size();i++)
     {
       if(!module_infos_[i].client_ptr->inPosBasedMode())
@@ -339,14 +336,12 @@ namespace elfin_hardware_interface{
       if(fabs((new_commands_[2*i]- module_infos_[i].axis1.count_zero) - (old_commands_[2*i]- module_infos_[i].axis1.count_zero))/module_infos_[i].axis1.count_rad_factor>motion_threshold_)
       {  
         module_infos_[i].client_ptr->setAxis1PosCnt(int32_t(position_cmd_count1));
-        robot_move = true;
         old_commands_[2*i] = new_commands_[2*i];
       }
       
       if(fabs((new_commands_[2*i+1]- module_infos_[i].axis2.count_zero) - (old_commands_[2*i+1]- module_infos_[i].axis2.count_zero))/module_infos_[i].axis2.count_rad_factor>motion_threshold_)
       {
          module_infos_[i].client_ptr->setAxis2PosCnt(int32_t(position_cmd_count2));
-         robot_move = true;
          old_commands_[2*i+1] = new_commands_[2*i+1];
       }
   
@@ -369,14 +364,6 @@ namespace elfin_hardware_interface{
         //module_infos_[i].client_ptr->setAxis1TrqCnt(int16_t(torque_cmd_count1));
         //module_infos_[i].client_ptr->setAxis2TrqCnt(int16_t(torque_cmd_count2));
       }
-    }
-    if(!robot_move ){
-      command_count += 1;
-      if(command_count > 5){
-        ethercat_drivers_[0]->ethercat_io_clients_[0]->pub_io_state();
-      }
-    }else{
-      command_count = 0;
     }
     return return_type::OK;
   }

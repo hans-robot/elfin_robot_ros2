@@ -254,13 +254,22 @@ bool ElfinEtherCATIOClient::getTxSDO_cb(const std::shared_ptr<std_srvs::srv::Set
     return true;
 }
 
+void ElfinEtherCATIOClient::start_thread()
+{
+  std::thread io_thread = std::thread(&ElfinEtherCATIOClient::pub_io_state, this);
+  io_thread.detach();
+}
+
 void ElfinEtherCATIOClient::pub_io_state()
 {
+    while(true){
     int32_t di_data = readSDO_unit(elfin_io_txpdo::DIGITAL_INPUT);
     int32_t do_data = readDO_unit(elfin_io_txpdo::DIGITAL_INPUT);
 
     end_io.data = {di_data,do_data};
     end_io_state->publish(end_io);
+    std::this_thread::sleep_for(std::chrono::seconds(1));
+    }
 }
 
 }

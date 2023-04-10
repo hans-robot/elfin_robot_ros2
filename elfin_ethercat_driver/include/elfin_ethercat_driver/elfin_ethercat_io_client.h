@@ -111,6 +111,7 @@ public:
     bool getTxSDO_cb(const std::shared_ptr<std_srvs::srv::SetBool::Request> req, const std::shared_ptr<std_srvs::srv::SetBool::Response> resp);
 
     std_msgs::msg::Int64MultiArray end_io;
+    void start_thread();
     void pub_io_state();
 };
 
