@@ -108,12 +108,12 @@ $ ros2 launch elfin3_ros2_moveit2 elfin3_moveit.launch.py
 Start up RViz with a configuration including the MoveIt! Motion Planning plugin:
 ```sh
 $ sudo su
-$ ros2 launch elfin3_ros2_moveit elfin3_moveit_rviz.launch.py
+$ ros2 launch elfin3_ros2_moveit2 elfin3_moveit_rviz.launch.py
 ```
 Start up elfin basic api:
 ```sh
 $ sudo su
-$ ros2 launch elfin_ros2_moveit2 elfin3_basic_api.launch.py
+$ ros2 launch elfin3_ros2_moveit2 elfin3_basic_api.launch.py
 ```
 Start up "Elfin Control Panel" interface:
 ```sh
