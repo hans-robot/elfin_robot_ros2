@@ -36,7 +36,6 @@ install(
     DIRECTORY
     config
     launch
-    script
     DESTINATION
     share/${PROJECT_NAME}
 )
