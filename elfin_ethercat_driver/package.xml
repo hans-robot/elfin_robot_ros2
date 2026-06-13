@@ -20,6 +20,8 @@
   <depend>tf2</depend>
   <depend>hardware_interface</depend>
   <depend>rosidl_default_generators</depend>
+  <depend>libboost-system-dev</depend>
+  <depend>libboost-thread-dev</depend>
 
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>ament_lint_common</test_depend>

@@ -24,6 +24,11 @@
   <depend>std_srvs</depend>
   <depend>tf2</depend>
   <depend>tf2_ros</depend>
+  <depend>rosidl_default_generators</depend>
+
+  <!-- runtime: wxPython GUI (elfin_gui.py) -->
+  <exec_depend>python3-wxgtk4.0</exec_depend>
+  <exec_depend>python3-transforms3d</exec_depend>
 
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>ament_lint_common</test_depend>
