@@ -1,0 +1,36 @@
+# Joint limits for MoveIt time parameterization.
+# MoveIt 2.12 (Jazzy) requires acceleration limits for the
+# AddTimeOptimalParameterization response adapter. Velocity limits mirror the
+# URDF (<limit velocity="1.57">); acceleration limits are conservative values
+# suitable for first runs on real hardware — tune as needed.
+joint_limits:
+  elfin_joint1:
+    has_velocity_limits: true
+    max_velocity: 1.57
+    has_acceleration_limits: true
+    max_acceleration: 3.0
+  elfin_joint2:
+    has_velocity_limits: true
+    max_velocity: 1.57
+    has_acceleration_limits: true
+    max_acceleration: 3.0
+  elfin_joint3:
+    has_velocity_limits: true
+    max_velocity: 1.57
+    has_acceleration_limits: true
+    max_acceleration: 3.0
+  elfin_joint4:
+    has_velocity_limits: true
+    max_velocity: 1.57
+    has_acceleration_limits: true
+    max_acceleration: 3.0
+  elfin_joint5:
+    has_velocity_limits: true
+    max_velocity: 1.57
+    has_acceleration_limits: true
+    max_acceleration: 3.0
+  elfin_joint6:
+    has_velocity_limits: true
+    max_velocity: 1.57
+    has_acceleration_limits: true
+    max_acceleration: 3.0
