@@ -55,13 +55,22 @@ def generate_launch_description():
     kinematics_yaml = load_yaml(
         "elfin5_l_ros2_moveit2", "config/kinematics.yaml"
     )
+    robot_description_kinematics = {"robot_description_kinematics": kinematics_yaml}
+
+    # joint limits (incl. acceleration limits required by MoveIt 2.12)
+    joint_limits_yaml = load_yaml(
+        "elfin5_l_ros2_moveit2", "config/joint_limits.yaml"
+    )
+    robot_description_planning = {"robot_description_planning": joint_limits_yaml}
 
     elfin_basic_api_node = Node(
         name="elfin_basic_node",
         package="elfin_basic_api",
         executable="elfin_basic_api_node",
         output="screen",
-        parameters=[robot_description,robot_description_semantic,kinematics_yaml,{'use_sim_time': True}],
+        parameters=[robot_description,robot_description_semantic,
+                    robot_description_kinematics,robot_description_planning,
+                    {'use_sim_time': False}],
     )
 
     return LaunchDescription(
