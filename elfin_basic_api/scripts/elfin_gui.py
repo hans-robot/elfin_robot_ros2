@@ -87,8 +87,11 @@ class MyFrame(wx.Frame,Node):
         font=self.panel.GetFont()
         font.SetPixelSize((12, 24))
         self.panel.SetFont(font)
+        # Give the TF listener its own node + spin thread so /tf and the latched
+        # /tf_static are received reliably, independent of the GUI executor.
+        self.tf_node = rclpy.create_node('elfin_gui_tf')
         self.tfBuffer = tf2_ros.Buffer()
-        self.listener = tf2_ros.TransformListener(self.tfBuffer,self.gui_node)
+        self.listener = tf2_ros.TransformListener(self.tfBuffer, self.tf_node, spin_thread=True)
 
         self.callback_group = ReentrantCallbackGroup()
         
@@ -926,7 +929,7 @@ class MyFrame(wx.Frame,Node):
         self.elfin_gui_executor.add_node(self.gui_node)
         self.elfin_gui_executor.add_node(self.node)
         spin_thread = threading.Thread(target=self.elfin_gui_executor.spin)
-        spin_thread.setDaemon(True)
+        spin_thread.daemon = True
         spin_thread.start()
   
 if __name__=='__main__':  
