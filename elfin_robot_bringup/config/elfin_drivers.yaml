@@ -18,6 +18,8 @@
 /**:
     ros__parameters:
         elfin_ethernet_name: enp6s0
+        # Set to true if an end-effector I/O module (gripper) is connected.
+        use_gripper: false
 
 #        elfin:
         slave_no: [1, 2, 3]

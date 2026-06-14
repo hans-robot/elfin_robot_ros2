@@ -1,6 +1,10 @@
 /**:
     ros__parameters:
         elfin_ethernet_name: enp6s0
+        # Set to true if an end-effector I/O module (gripper) is connected as an
+        # extra EtherCAT slave. When false, its I/O is not polled (no
+        # "Failed to read ... slave_no:N" spam).
+        use_gripper: false
         slave_no: [1, 2, 3]
         joint_names: [elfin_joint2, elfin_joint1, elfin_joint3, elfin_joint4, elfin_joint5, elfin_joint6]
         reduction_ratios: [101.0, 101.0, 101.0, 101.0, 101.0, 101.0]

@@ -208,6 +208,19 @@ ElfinEtherCATDriver::ElfinEtherCATDriver(EtherCatManager *manager, std::string d
     ed_nh_->declare_parameter("io_slave_no",std::vector<int64_t>({4}));
     ed_nh_->get_parameter_or("io_slave_no", io_slave_no_, io_slave_no_default);
 
+    // use_gripper: when false, the end-effector I/O module (gripper) is absent
+    // or not needed. Skip creating its EtherCAT I/O client so its read_di/
+    // write_do services are not advertised and its SDOs are never polled,
+    // which avoids the "Failed to read ... slave_no:N" log spam.
+    bool use_gripper;
+    ed_nh_->declare_parameter("use_gripper", true);
+    ed_nh_->get_parameter_or<bool>("use_gripper", use_gripper, true);
+    if(!use_gripper)
+    {
+        io_slave_no_.clear();
+        RCLCPP_INFO(ed_nh_->get_logger(), "use_gripper is false: end-effector I/O (gripper) disabled");
+    }
+
     // Initialize ethercat_io_client_
     ethercat_io_clients_.clear();
     ethercat_io_clients_.resize(io_slave_no_.size());

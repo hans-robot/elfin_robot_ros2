@@ -116,6 +116,11 @@ class MyFrame(wx.Frame,Node):
         self.node.declare_parameter('use_fake_robot', True)
         self.use_fake_robot = self.node.get_parameter('use_fake_robot').get_parameter_value().bool_value
 
+        # use_gripper: when false, do not poll the end-effector digital I/O
+        # (no blinking DO/DI icons, no read_di/read_do service calls).
+        self.node.declare_parameter('use_gripper', True)
+        self.use_gripper = self.node.get_parameter('use_gripper').get_parameter_value().bool_value
+
         self.node.declare_parameter(self.controller_ns+"joints", ["elfin_joint1","elfin_joint2","elfin_joint3","elfin_joint4","elfin_joint5","elfin_joint6"])
         self.joint_names=self.node.get_parameter(self.controller_ns+"joints").get_parameter_value().string_array_value
         
@@ -920,7 +925,7 @@ class MyFrame(wx.Frame,Node):
 
         self.gui_node.create_timer(0.2, self.monitor_status)
         self.gui_node.create_timer(0.2, self.set_color)
-        if not self.use_fake_robot:
+        if not self.use_fake_robot and self.use_gripper:
             self.gui_node.create_timer(0.2, self.monitor_DO_DI)
         else:
             pass
