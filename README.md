@@ -108,12 +108,20 @@ Without it the loop still runs, but you may see occasional "Overrun" warnings.
 #### 3. Bring up everything with a single launch (recommended)
 
 A combined launch starts the hardware, MoveIt (`move_group` + RViz), the basic
-API and the Control Panel GUI in one shot. First let root open the X display,
+API and the Control Panel GUI in one shot. It first brings up the EtherCAT
+hardware and the controllers, and starts MoveIt/RViz/API/GUI only **after the
+robot is ready** (joint position recognition takes ~25 s), so you don't see
+start-up TF / "current robot state" errors. First let root open the X display,
 then launch (as root, with the environment sourced as in step 2):
 
 ```sh
 $ xhost +SI:localuser:root          # run once, in your normal user session
 # ros2 launch elfin5_ros2_moveit2 elfin5_bringup.launch.py
+```
+
+The GUI and the basic API can be turned off (both default to on):
+```sh
+# ros2 launch elfin5_ros2_moveit2 elfin5_bringup.launch.py use_gui:=false use_api:=false
 ```
 
 #### 3b. Or bring up each part in its own terminal

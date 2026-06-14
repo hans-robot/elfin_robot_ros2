@@ -198,20 +198,28 @@ def generate_launch_description():
         # on_exit=Shutdown(),
     )
 
+    # Controller spawners. Disable them (spawn_controllers:=false) when another
+    # launch file already spawns the controllers (e.g. elfin5_bringup.launch.py).
+    spawn_controllers = LaunchConfiguration("spawn_controllers")
     elfin_controller_spawner = Node(
         package="controller_manager",
         executable="spawner",
         arguments=["elfin_arm_controller", "--controller-manager", "/controller_manager"],
+        condition=IfCondition(spawn_controllers),
     )
 
     joint_state_spawner = Node(
         package="controller_manager",
         executable="spawner",
         arguments=["joint_state_broadcaster", "--controller-manager", "/controller_manager"],
+        condition=IfCondition(spawn_controllers),
     )
 
     return LaunchDescription(
-        [   
+        [
+            DeclareLaunchArgument(
+                "spawn_controllers", default_value="true",
+                description="Spawn the arm and joint_state controllers from this launch file."),
             rviz_arg,
             rviz_node_full,
             run_move_group_node,
