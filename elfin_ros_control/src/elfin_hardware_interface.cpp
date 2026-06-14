@@ -73,6 +73,7 @@ namespace elfin_hardware_interface{
             return false;
         }
     }
+    return true;
   }
 
   CallbackReturn ElfinHWInterface::on_init(const hardware_interface::HardwareInfo & info)
@@ -195,6 +196,13 @@ namespace elfin_hardware_interface{
       module_infos_[i].axis2.velocity = -1*vel_count2/module_infos_[i].axis2.count_rad_per_s_factor;
       module_infos_[i].axis2.effort = -1*trq_count2/module_infos_[i].axis2.count_Nm_factor;
     }
+
+    // Spin the driver node (which owns the enable/disable/clear_fault/IO
+    // services) in its own thread, so callbacks never block read()/write().
+    executor_ = std::make_shared<rclcpp::executors::SingleThreadedExecutor>();
+    executor_->add_node(n_);
+    spin_thread_ = std::thread([this]() { executor_->spin(); });
+
     return CallbackReturn::SUCCESS;
   }
 
@@ -277,7 +285,10 @@ namespace elfin_hardware_interface{
 
   return_type ElfinHWInterface::read(const rclcpp::Time &time, const rclcpp::Duration &period)
   {
-    rclcpp::spin_some(n_);
+    // NOTE: do NOT spin the node here. Service callbacks (enable/disable/
+    // clear_fault) can block for seconds; running them in this real-time
+    // loop stalls the controller_manager cycle. The node is spun in a
+    // dedicated thread started in on_init().
     for(size_t i=0;i<module_infos_.size();i++)
     {
       int32_t pos_count1 = module_infos_[i].client_ptr->getAxis1PosCnt();
@@ -409,6 +420,13 @@ namespace elfin_hardware_interface{
   CallbackReturn ElfinHWInterface::on_deactivate(const rclcpp_lifecycle::State & previous_state)
   {
     RCLCPP_INFO(n_->get_logger(),"trying to Stop");
+    // Stop the spin thread before destroying the drivers it serves.
+    if (executor_) {
+      executor_->cancel();
+    }
+    if (spin_thread_.joinable()) {
+      spin_thread_.join();
+    }
     for(unsigned int i=0;i<ethercat_drivers_.size();i++)
     {
       if(ethercat_drivers_[i]!=NULL)
@@ -418,6 +436,16 @@ namespace elfin_hardware_interface{
     }
     RCLCPP_INFO(n_->get_logger(), "Stopped");
     return CallbackReturn::SUCCESS;
+  }
+
+  ElfinHWInterface::~ElfinHWInterface()
+  {
+    if (executor_) {
+      executor_->cancel();
+    }
+    if (spin_thread_.joinable()) {
+      spin_thread_.join();
+    }
   }
 
 }

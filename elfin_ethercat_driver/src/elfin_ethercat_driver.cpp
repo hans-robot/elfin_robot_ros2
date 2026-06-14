@@ -606,6 +606,7 @@ bool ElfinEtherCATDriver::enableRobot_test()
         usleep(100000);
         clock_gettime(CLOCK_REALTIME, &tick);
     }
+    return false;
 }
 
 bool ElfinEtherCATDriver::enableRobot_cb(const std::shared_ptr<std_srvs::srv::SetBool::Request> req, const std::shared_ptr<std_srvs::srv::SetBool::Response> resp)
@@ -670,6 +671,7 @@ bool ElfinEtherCATDriver::enableRobot_cb(const std::shared_ptr<std_srvs::srv::Se
         usleep(100000);
         clock_gettime(CLOCK_REALTIME, &tick);
     }
+    return false;
 }
 
 bool ElfinEtherCATDriver::disableRobot_cb(const std::shared_ptr<std_srvs::srv::SetBool::Request> req, const std::shared_ptr<std_srvs::srv::SetBool::Response> resp)
@@ -728,6 +730,7 @@ bool ElfinEtherCATDriver::disableRobot_cb(const std::shared_ptr<std_srvs::srv::S
         usleep(100000);
         clock_gettime(CLOCK_REALTIME, &tick);
     }
+    return false;
 }
 
 bool ElfinEtherCATDriver::clearFault_cb(const std::shared_ptr<std_srvs::srv::SetBool::Request> req, const std::shared_ptr<std_srvs::srv::SetBool::Response> resp)
@@ -776,6 +779,7 @@ bool ElfinEtherCATDriver::clearFault_cb(const std::shared_ptr<std_srvs::srv::Set
         usleep(100000);
         clock_gettime(CLOCK_REALTIME, &tick);
     }
+    return false;
 }
 
 bool ElfinEtherCATDriver::recognizePosition_cb(const std::shared_ptr<std_srvs::srv::SetBool::Request> req, const std::shared_ptr<std_srvs::srv::SetBool::Response> resp)
