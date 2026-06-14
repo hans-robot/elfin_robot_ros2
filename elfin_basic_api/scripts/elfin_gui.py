@@ -884,7 +884,7 @@ class MyFrame(wx.Frame,Node):
             self.key.append(str(round(rpy[2]*180/math.pi, 2)))
             wx.CallAfter(self.updateDisplay, self.key)
         except Exception as e:
-            self.node.get_logger().info('Get TF2 State Error...')
+            self.node.get_logger().warn('Get TF2 State Error: {}'.format(e), throttle_duration_sec=2.0)
             
     def servo_state_cb(self, data):
         if self.servo_state_lock.acquire():
