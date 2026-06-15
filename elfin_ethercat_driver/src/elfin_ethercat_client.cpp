@@ -713,6 +713,7 @@ void *ElfinEtherCATClient::setEnable(void* threadarg)
     pthis->writeOutput_half_unit(elfin_rxpdo::AXIS2_CONTROLWORD_L16, 0x1f, false);
 
     usleep(100000);
+    return (void *)0;
 }
 
 void *ElfinEtherCATClient::setDisable(void *threadarg)
@@ -744,6 +745,7 @@ void *ElfinEtherCATClient::recognizePoseCmd(void *threadarg)
         return (void *)0;
     }
 
+    return (void *)0;
 }
 
 bool ElfinEtherCATClient::isWarning()
@@ -827,6 +829,7 @@ bool ElfinEtherCATClient::enable_cb(const std::shared_ptr<std_srvs::srv::SetBool
         usleep(100000);
         clock_gettime(CLOCK_REALTIME, &tick);
     }
+    return false;
 }
 
 bool ElfinEtherCATClient::reset_fault_cb(const std::shared_ptr<std_srvs::srv::SetBool::Request> req, const std::shared_ptr<std_srvs::srv::SetBool::Response> resp)

@@ -11,6 +11,7 @@ def generate_launch_description():
             output='screen',
             parameters=[
                 {'use_fake_robot': False},
+                {'use_gripper': False},
                 {'use_sim_time': False}
             ]
         )

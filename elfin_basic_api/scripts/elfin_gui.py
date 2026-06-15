@@ -87,8 +87,11 @@ class MyFrame(wx.Frame,Node):
         font=self.panel.GetFont()
         font.SetPixelSize((12, 24))
         self.panel.SetFont(font)
+        # Give the TF listener its own node + spin thread so /tf and the latched
+        # /tf_static are received reliably, independent of the GUI executor.
+        self.tf_node = rclpy.create_node('elfin_gui_tf')
         self.tfBuffer = tf2_ros.Buffer()
-        self.listener = tf2_ros.TransformListener(self.tfBuffer,self.gui_node)
+        self.listener = tf2_ros.TransformListener(self.tfBuffer, self.tf_node, spin_thread=True)
 
         self.callback_group = ReentrantCallbackGroup()
         
@@ -112,6 +115,11 @@ class MyFrame(wx.Frame,Node):
 
         self.node.declare_parameter('use_fake_robot', True)
         self.use_fake_robot = self.node.get_parameter('use_fake_robot').get_parameter_value().bool_value
+
+        # use_gripper: when false, do not poll the end-effector digital I/O
+        # (no blinking DO/DI icons, no read_di/read_do service calls).
+        self.node.declare_parameter('use_gripper', True)
+        self.use_gripper = self.node.get_parameter('use_gripper').get_parameter_value().bool_value
 
         self.node.declare_parameter(self.controller_ns+"joints", ["elfin_joint1","elfin_joint2","elfin_joint3","elfin_joint4","elfin_joint5","elfin_joint6"])
         self.joint_names=self.node.get_parameter(self.controller_ns+"joints").get_parameter_value().string_array_value
@@ -884,7 +892,7 @@ class MyFrame(wx.Frame,Node):
             self.key.append(str(round(rpy[2]*180/math.pi, 2)))
             wx.CallAfter(self.updateDisplay, self.key)
         except Exception as e:
-            self.node.get_logger().info('Get TF2 State Error...')
+            self.node.get_logger().warn('Get TF2 State Error: {}'.format(e), throttle_duration_sec=2.0)
             
     def servo_state_cb(self, data):
         if self.servo_state_lock.acquire():
@@ -917,7 +925,7 @@ class MyFrame(wx.Frame,Node):
 
         self.gui_node.create_timer(0.2, self.monitor_status)
         self.gui_node.create_timer(0.2, self.set_color)
-        if not self.use_fake_robot:
+        if not self.use_fake_robot and self.use_gripper:
             self.gui_node.create_timer(0.2, self.monitor_DO_DI)
         else:
             pass
@@ -926,7 +934,7 @@ class MyFrame(wx.Frame,Node):
         self.elfin_gui_executor.add_node(self.gui_node)
         self.elfin_gui_executor.add_node(self.node)
         spin_thread = threading.Thread(target=self.elfin_gui_executor.spin)
-        spin_thread.setDaemon(True)
+        spin_thread.daemon = True
         spin_thread.start()
   
 if __name__=='__main__':  

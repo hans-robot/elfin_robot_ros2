@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.16)
 project(elfin_basic_api)
 
 # Default to C99
@@ -26,7 +26,6 @@ find_package(rclcpp REQUIRED)
 find_package(rclpy REQUIRED)
 find_package(std_msgs REQUIRED)
 find_package(moveit_core REQUIRED)
-find_package(moveit_planners_ompl REQUIRED)
 find_package(moveit_ros_planning REQUIRED)
 find_package(moveit_ros_planning_interface REQUIRED)
 find_package(rclcpp_action REQUIRED)
@@ -56,7 +55,6 @@ set(DEPENDENCIES
   "std_srvs"
   "sensor_msgs"
   "moveit_core"
-  "moveit_planners_ompl"
   "moveit_ros_planning"
   "moveit_ros_planning_interface"
   "control_msgs"

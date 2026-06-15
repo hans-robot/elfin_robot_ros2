@@ -5,7 +5,7 @@
   <version>0.0.0</version>
   <description>TODO: Package description</description>
   <maintainer email="cjw@todo.todo">cjw</maintainer>
-  <license>TODO: License declaration</license>
+  <license>BSD-3-Clause</license>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
   <buildtool_depend>ament_cmake_python</buildtool_depend>
@@ -14,7 +14,6 @@
   <depend>rclpy</depend>
   <depend>std_msgs</depend>
   <depend>moveit_core</depend>
-  <depend>moveit_planners_ompl</depend>
   <depend>moveit_ros_planning</depend>
   <depend>moveit_ros_planning_interface</depend>
   <depend>rclcpp_action</depend>
@@ -24,6 +23,11 @@
   <depend>std_srvs</depend>
   <depend>tf2</depend>
   <depend>tf2_ros</depend>
+  <depend>rosidl_default_generators</depend>
+
+  <!-- runtime: wxPython GUI (elfin_gui.py) -->
+  <exec_depend>python3-wxgtk4.0</exec_depend>
+  <exec_depend>python3-transforms3d</exec_depend>
 
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>ament_lint_common</test_depend>

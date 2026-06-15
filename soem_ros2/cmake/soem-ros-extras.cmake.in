@@ -1,2 +1,5 @@
-list(APPEND @PROJECT_NAME@_INCLUDE_DIRS "${@PROJECT_NAME@_PREFIX}/@CATKIN_GLOBAL_INCLUDE_DESTINATION@/soem")
-list(APPEND @PROJECT_NAME@_INCLUDE_DIRS "${@PROJECT_NAME@_PREFIX}/@CATKIN_GLOBAL_INCLUDE_DESTINATION@")
+# Intentionally empty.
+# The include directory (containing the soem_ros2/ headers) is exported via
+# ament_export_include_directories(include) in CMakeLists.txt. The previous
+# catkin-era logic here built include paths from @CATKIN_GLOBAL_INCLUDE_DESTINATION@,
+# which is undefined under ament and produced an invalid "/include/soem" path.

@@ -370,8 +370,8 @@ bool ElfinBasicAPI::stopActCtrlrs(const std::shared_ptr<std_srvs::srv::SetBool::
 
         // Stop active controllers
         auto switch_controller_request = std::make_shared<controller_manager_msgs::srv::SwitchController::Request>();
-        switch_controller_request->start_controllers.clear();
-        switch_controller_request->stop_controllers=controllers_to_stop;
+        switch_controller_request->activate_controllers.clear();
+        switch_controller_request->deactivate_controllers=controllers_to_stop;
         switch_controller_request->strictness=switch_controller_request->STRICT;
 
         auto switch_control_res = switch_controller_client_->async_send_request(switch_controller_request);
@@ -401,9 +401,9 @@ bool ElfinBasicAPI::startElfinCtrlr(const std::shared_ptr<std_srvs::srv::SetBool
     // Start active controllers
     auto switch_controller_request = std::make_shared<controller_manager_msgs::srv::SwitchController::Request>();
 
-    switch_controller_request->start_controllers.clear();
-    switch_controller_request->start_controllers.push_back(elfin_controller_name_);
-    switch_controller_request->stop_controllers.clear();
+    switch_controller_request->activate_controllers.clear();
+    switch_controller_request->activate_controllers.push_back(elfin_controller_name_);
+    switch_controller_request->deactivate_controllers.clear();
     switch_controller_request->strictness=switch_controller_request->STRICT;
 
     auto switch_controller_res = switch_controller_client_->async_send_request(switch_controller_request);

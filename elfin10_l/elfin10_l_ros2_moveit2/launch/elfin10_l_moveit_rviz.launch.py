@@ -71,11 +71,25 @@ def generate_launch_description():
 
     robot_description_kinematics = {"robot_description_kinematics":kinematics_yaml}
 
+    # joint limits (incl. acceleration limits required by MoveIt 2.12 time parameterization)
+    joint_limits_yaml = load_yaml("elfin10_l_ros2_moveit2", "config/joint_limits.yaml")
+    robot_description_planning = {"robot_description_planning": joint_limits_yaml}
+
     # planning functionality
     ompl_planning_pipeline_config = {
         "move_group":{
-        "planning_plugin": "ompl_interface/OMPLPlanner",
-        "request_adapters": """default_planner_request_adapters/AddTimeOptimalParameterization default_planner_request_adapters/FixWorkspaceBounds default_planner_request_adapters/FixStartStateBounds default_planner_request_adapters/FixStartStateCollision default_planner_request_adapters/FixStartStatePathConstraints""",
+        "planning_plugins": ["ompl_interface/OMPLPlanner"],
+        "request_adapters": [
+            "default_planning_request_adapters/ResolveConstraintFrames",
+            "default_planning_request_adapters/ValidateWorkspaceBounds",
+            "default_planning_request_adapters/CheckStartStateBounds",
+            "default_planning_request_adapters/CheckStartStateCollision",
+        ],
+        "response_adapters": [
+            "default_planning_response_adapters/AddTimeOptimalParameterization",
+            "default_planning_response_adapters/ValidateSolution",
+            "default_planning_response_adapters/DisplayMotionPath",
+        ],
         "start_state_max_bounds_error":0.1,
         }
     }
@@ -118,7 +132,8 @@ def generate_launch_description():
         parameters=[
             robot_description,
             robot_description_semantic,
-            kinematics_yaml,
+            robot_description_kinematics,
+            robot_description_planning,
             ompl_planning_pipeline_config,
             trajectory_execution,
             moveit_controllers,
@@ -140,7 +155,7 @@ def generate_launch_description():
             robot_description,
             robot_description_semantic,
             ompl_planning_pipeline_config,
-            kinematics_yaml,
+            robot_description_kinematics,
         ],
         condition=UnlessCondition(load_rviz),
     )
@@ -183,20 +198,6 @@ def generate_launch_description():
         # on_exit=Shutdown(),
     )
 
-    # Load controllers
-    load_controllers = []
-    for controller in [
-        "elfin_arm_controller",
-        "joint_state_broadcaster",
-    ]:
-        load_controllers += [
-            ExecuteProcess(
-                cmd=["ros2 run controller_manager spawner.py {}".format(controller)],
-                shell=True,
-                output="screen",
-            )
-        ]
-
     elfin_controller_spawner = Node(
         package="controller_manager",
         executable="spawner",
@@ -218,5 +219,4 @@ def generate_launch_description():
             joint_state_spawner
 
         ]
-        + load_controllers
     )

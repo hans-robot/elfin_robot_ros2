@@ -10,6 +10,7 @@
 #include <string>
 #include <memory>
 #include <vector>
+#include <thread>
 
 #include <boost/shared_ptr.hpp>
 #include <boost/thread.hpp>
@@ -22,7 +23,6 @@
 #include <hardware_interface/types/hardware_interface_type_values.hpp>
 #include "visibility_control.h"
 
-#include <hardware_interface/visibility_control.h>
 #include <hardware_interface/hardware_info.hpp>
 #include <hardware_interface/types/hardware_interface_return_values.hpp>
 #include <hardware_interface/types/hardware_interface_type_values.hpp>
@@ -75,6 +75,8 @@ public:
 
   RCLCPP_SHARED_PTR_DEFINITIONS(ElfinHWInterface)
 
+  ~ElfinHWInterface();
+
   // ELFIN_HARDWARE_INTERFACE_PUBLIC
   CallbackReturn on_init(const hardware_interface::HardwareInfo & info) override;
 
@@ -112,6 +114,11 @@ private:
   std::vector<ModuleInfo> module_infos_;
 
   rclcpp::Node::SharedPtr n_;
+  // The driver node is spun in a dedicated thread so that its service
+  // callbacks (enable/disable/clear_fault) never run inside the real-time
+  // read()/write() loop, where a blocking callback would stall the RT cycle.
+  rclcpp::executors::SingleThreadedExecutor::SharedPtr executor_;
+  std::thread spin_thread_;
   rclcpp::Node::SharedPtr m_;
 
   std::vector<bool> pre_switch_flags_;

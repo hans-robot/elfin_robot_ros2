@@ -346,6 +346,10 @@ uint8_t EtherCatManager::readOutput(int slave_no, uint8_t channel) const
 template <typename T>
 uint8_t EtherCatManager::writeSDO(int slave_no, uint16_t index, uint8_t subidx, T value) const
 {
+  // SDO mailbox access must be serialized with the cyclic PDO thread:
+  // SOEM is not thread-safe, and concurrent ec_SDOwrite/ec_send_processdata
+  // corrupts the EtherCAT stack (observed as a SIGILL crash).
+  boost::mutex::scoped_lock lock(iomap_mutex_);
   int ret;
   ret = ec_SDOwrite(slave_no, index, subidx, FALSE, sizeof(value), &value, EC_TIMEOUTSAFE);
   return ret;
@@ -354,6 +358,8 @@ uint8_t EtherCatManager::writeSDO(int slave_no, uint16_t index, uint8_t subidx, 
 template <typename T>
 T EtherCatManager::readSDO(int slave_no, uint16_t index, uint8_t subidx) const
 {
+  // Serialize SDO mailbox access with the cyclic PDO thread (see writeSDO).
+  boost::mutex::scoped_lock lock(iomap_mutex_);
   int ret, l;
   T val;
   l = sizeof(val);
