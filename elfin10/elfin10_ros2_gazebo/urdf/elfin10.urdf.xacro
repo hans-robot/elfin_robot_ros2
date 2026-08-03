@@ -2,8 +2,7 @@
 
 <robot name="elfin10" xmlns:xacro="http://wiki.ros.org/xacro">
 
-  <xacro:arg name="use_real_hardware" default="true" />
-  <xacro:arg name="use_fake_hardware" default="false" />
+  <xacro:macro name="elfin10_ros2_gazebo_urdf" params="use_real_hardware use_fake_hardware">
 
   <!-- Load TRANSMISSION file: -->
   <xacro:include filename="$(find elfin10_ros2_gazebo)/urdf/elfin10_transmission.xacro" />
@@ -19,15 +18,17 @@
     <xacro:elfin10_transmission />
     <!-- GAZEBO - ROS2_CONTROL: -->
     <xacro:elfin10_gazebo  
-    use_real_hardware="$(arg use_real_hardware)" 
-    use_fake_hardware="$(arg use_fake_hardware)"/>
+    use_real_hardware="${use_real_hardware}" 
+    use_fake_hardware="${use_fake_hardware}"/>
     
    <link name="world"/>
   
+  <!-- NOTE: 不知道为啥这个默认绕z转了-90度
+         之前是 rpy="0 0 -1.5708" -->
   <joint name="world_base" type="fixed">
     <origin
       xyz="0 0 0"
-      rpy="0 0 -1.5708" />
+      rpy="0 0 0" />
     <parent
       link="world" />
     <child
@@ -462,4 +463,5 @@
       link="elfin_dummy_gripper" />
   </joint>
   
+  </xacro:macro>
 </robot>

@@ -10,7 +10,7 @@
     <!--CHAINS: When a chain is specified, all the links along the chain (including endpoints) are included in the group. Additionally, all the joints that are parents to included links are also included. This means that joints along the chain and the parent joint of the base link are included in the group-->
     <!--SUBGROUPS: Groups can also be formed by referencing to already defined group names-->
     <group name="elfin_arm">
-        <link name="elfin_end_link" />
+        <!-- <link name="elfin_end_link" /> -->
         <joint name="elfin_joint1" />
         <joint name="elfin_joint2" />
         <joint name="elfin_joint3" />
